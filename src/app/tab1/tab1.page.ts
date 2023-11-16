@@ -2,7 +2,8 @@ import { Component } from '@angular/core';
 import { ToastController } from '@ionic/angular';
 import { AlertController} from '@ionic/angular';
 import { NavController } from '@ionic/angular';
-
+import { GroceriesService } from 'src/app/groceries.service'
+import { InputDialogServiceService } from 'src/app/input-dialog-service.service';
 @Component({
   selector: 'app-tab1',
   templateUrl: 'tab1.page.html',
@@ -10,7 +11,7 @@ import { NavController } from '@ionic/angular';
 })
 export class Tab1Page {
   title = "Grocery List";
-  items = [
+/*   items = [
     {
       name: "Milk",
       quantity: 2
@@ -27,8 +28,12 @@ export class Tab1Page {
       name: "Bread",
       quantity: 2
     },
-  ];
-  constructor(public toastCtrl: ToastController, public alertCtrl: AlertController) {}
+  ]; */
+  constructor(public toastCtrl: ToastController, public alertCtrl: AlertController, private groceriesService:GroceriesService, private inputDialogService: InputDialogServiceService) {}
+
+  loadItems(){
+    return this.groceriesService.getItems();
+  }
 
   async removeItem(item: any, index: any) {
     console.log("Removing Item - ", item, index);
@@ -37,13 +42,25 @@ export class Tab1Page {
       duration: 3000
     });
     (await toast).present();
-    this.items.splice(index,1);
+    this.groceriesService.removeItem(index);
+    // this.items.splice(index,1);
   }
+
+  async editItem(item: any, index: any) {
+    console.log("Edit Item - ", item, index);
+    const toast = this.toastCtrl.create({
+      message: 'Editing Item '+ index,
+      duration: 3000
+    });
+    (await toast).present();
+    this.inputDialogService.showPrompt(item, index);
+  }
+
     async addItem(){
     console.log("Adding Item");
-    this.showAddItemPrompt();
+    this.inputDialogService.showPrompt();
   }
-    async showAddItemPrompt() {
+/*     async showAddItemPrompt() {
       const prompt = await this.alertCtrl.create({
         header:'Add Item',
         message: "Enter an item and quantity: ",
@@ -68,12 +85,50 @@ export class Tab1Page {
             text: 'save',
             handler: item => {
               console.log('Save Clicked', item);
-              this.items.push(item);
+              this.groceriesService.addItem(item)
+              // this.items.push(item);
             }
           }
         ]
       });
       await prompt.present();
     }
+
+    async showEditItemPrompt(item:any, index:any) {
+      const prompt = await this.alertCtrl.create({
+        header:'Edit Item',
+        message: "Please edit the item: ",
+        inputs: [
+          {
+            name: 'name',
+            placeholder: 'Name',
+            value: item.name
+          },
+          {
+            name: 'quantity',
+            placeholder: "Quantity",
+            value: item.quantity 
+          },
+        ],
+        buttons: [
+          {
+            text: 'Cancel',
+            handler: data => {
+              console.log('Cancel Clicked', data);
+            }
+          },
+          {
+            text: 'save',
+            handler: item => {
+              console.log('Save Clicked', item);
+              this.groceriesService.editItem(item, index)
+              // this.items[index] = item;
+            }
+          }
+        ]
+      });
+      await prompt.present();
+    } */
+
 }
 
